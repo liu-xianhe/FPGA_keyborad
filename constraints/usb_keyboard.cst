@@ -1,0 +1,255 @@
+//=============================================================================
+// usb_keyboard.cst  ——  Gowin 物理约束（GW5A-25A / LQ144，144 脚 LQFP）
+//-----------------------------------------------------------------------------
+//  !!! 引脚号必须按你自己的 PCB 修改 !!!
+//  下面用 "TODO_xx" 占位，Gowin 会报错，请逐一替换成实际引脚。
+//
+//  USB3300 连接要点：
+//    CLKOUT (60MHz) → clk_ulpi     （必须走全局时钟引脚）
+//    DATA[7:0]      → ulpi_data    （双向，8 根，建议同 Bank 连续）
+//    DIR / NXT      → ulpi_dir / ulpi_nxt   （PHY 输出）
+//    STP            → ulpi_stp              （FPGA 输出）
+//    RESETB         → phy_reset_n           （FPGA 输出，低有效）
+//    VBUS / ID      → 按硬件接，本设计不采样
+//
+//  引脚预算（LQ144 通用 IO 约 105~110 根，以官方 Pinout 手册为准）：
+//    按键 87 + ULPI 11 + 时钟 1 + 复位 1 + PHY_RSTB 1 + LED 3 + 调试 1 = 105
+//    如果 pinout 核对后发现差几根，按这个顺序让步：
+//      1. 删掉 dbg_configured（省 1 根）
+//      2. LED 只留 caps（省 2 根）
+//      3. 砍掉编辑/方向区，键数退到 76 或 61（同时改顶层 KEY_NUM）
+//=============================================================================
+
+//----------------------------- 时钟 / 复位 -----------------------------
+IO_LOC  "clk_ulpi" TODO_A1;
+IO_PORT "clk_ulpi" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+
+IO_LOC  "rst_btn_n" TODO_B1;
+IO_PORT "rst_btn_n" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+IO_LOC  "phy_reset_n" TODO_B2;
+IO_PORT "phy_reset_n" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+
+//----------------------------- ULPI ------------------------------------
+IO_LOC  "ulpi_dir" TODO_C1;
+IO_PORT "ulpi_dir" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+IO_LOC  "ulpi_nxt" TODO_C2;
+IO_PORT "ulpi_nxt" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+IO_LOC  "ulpi_stp" TODO_C3;
+IO_PORT "ulpi_stp" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+
+IO_LOC  "ulpi_data[0]" TODO_D0;
+IO_LOC  "ulpi_data[1]" TODO_D1;
+IO_LOC  "ulpi_data[2]" TODO_D2;
+IO_LOC  "ulpi_data[3]" TODO_D3;
+IO_LOC  "ulpi_data[4]" TODO_D4;
+IO_LOC  "ulpi_data[5]" TODO_D5;
+IO_LOC  "ulpi_data[6]" TODO_D6;
+IO_LOC  "ulpi_data[7]" TODO_D7;
+IO_PORT "ulpi_data[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[1]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[2]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[3]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[4]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[5]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[6]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "ulpi_data[7]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+
+//----------------------------- 键盘（IO 直连，每键一根）-----------------
+//  按键一端接 IO、一端接 GND，内部上拉 → 松开为高、按下为低。
+//  87 键 TKL 配列，序号与 kbd_hid.v 的 keymap() 表一一对应：
+//    主键区  0..60   Esc 1..0 - = Backspace / Tab Q..P [ ] backslash /
+//                    Caps A..L ; ' Enter / LShift Z..M , . / RShift /
+//                    LCtrl LGui LAlt Space RAlt RGui RCtrl Fn
+//    功能行 61..76   F1..F12 / PrintScreen ScrollLock Pause / Menu
+//    编辑区 77..86   Insert Home PageUp Delete End PageDown / Up Down Left Right
+//  !! 键数不是 87 时，删掉多余的行，并把顶层 KEY_NUM 改成实际值 !!
+IO_LOC  "key_in[0]"  TODO_K0;
+IO_LOC  "key_in[1]"  TODO_K1;
+IO_LOC  "key_in[2]"  TODO_K2;
+IO_LOC  "key_in[3]"  TODO_K3;
+IO_LOC  "key_in[4]"  TODO_K4;
+IO_LOC  "key_in[5]"  TODO_K5;
+IO_LOC  "key_in[6]"  TODO_K6;
+IO_LOC  "key_in[7]"  TODO_K7;
+IO_LOC  "key_in[8]"  TODO_K8;
+IO_LOC  "key_in[9]"  TODO_K9;
+IO_LOC  "key_in[10]" TODO_K10;
+IO_LOC  "key_in[11]" TODO_K11;
+IO_LOC  "key_in[12]" TODO_K12;
+IO_LOC  "key_in[13]" TODO_K13;
+IO_LOC  "key_in[14]" TODO_K14;
+IO_LOC  "key_in[15]" TODO_K15;
+IO_LOC  "key_in[16]" TODO_K16;
+IO_LOC  "key_in[17]" TODO_K17;
+IO_LOC  "key_in[18]" TODO_K18;
+IO_LOC  "key_in[19]" TODO_K19;
+IO_LOC  "key_in[20]" TODO_K20;
+IO_LOC  "key_in[21]" TODO_K21;
+IO_LOC  "key_in[22]" TODO_K22;
+IO_LOC  "key_in[23]" TODO_K23;
+IO_LOC  "key_in[24]" TODO_K24;
+IO_LOC  "key_in[25]" TODO_K25;
+IO_LOC  "key_in[26]" TODO_K26;
+IO_LOC  "key_in[27]" TODO_K27;
+IO_LOC  "key_in[28]" TODO_K28;
+IO_LOC  "key_in[29]" TODO_K29;
+IO_LOC  "key_in[30]" TODO_K30;
+IO_LOC  "key_in[31]" TODO_K31;
+IO_LOC  "key_in[32]" TODO_K32;
+IO_LOC  "key_in[33]" TODO_K33;
+IO_LOC  "key_in[34]" TODO_K34;
+IO_LOC  "key_in[35]" TODO_K35;
+IO_LOC  "key_in[36]" TODO_K36;
+IO_LOC  "key_in[37]" TODO_K37;
+IO_LOC  "key_in[38]" TODO_K38;
+IO_LOC  "key_in[39]" TODO_K39;
+IO_LOC  "key_in[40]" TODO_K40;
+IO_LOC  "key_in[41]" TODO_K41;
+IO_LOC  "key_in[42]" TODO_K42;
+IO_LOC  "key_in[43]" TODO_K43;
+IO_LOC  "key_in[44]" TODO_K44;
+IO_LOC  "key_in[45]" TODO_K45;
+IO_LOC  "key_in[46]" TODO_K46;
+IO_LOC  "key_in[47]" TODO_K47;
+IO_LOC  "key_in[48]" TODO_K48;
+IO_LOC  "key_in[49]" TODO_K49;
+IO_LOC  "key_in[50]" TODO_K50;
+IO_LOC  "key_in[51]" TODO_K51;
+IO_LOC  "key_in[52]" TODO_K52;
+IO_LOC  "key_in[53]" TODO_K53;
+IO_LOC  "key_in[54]" TODO_K54;
+IO_LOC  "key_in[55]" TODO_K55;
+IO_LOC  "key_in[56]" TODO_K56;
+IO_LOC  "key_in[57]" TODO_K57;
+IO_LOC  "key_in[58]" TODO_K58;
+IO_LOC  "key_in[59]" TODO_K59;
+IO_LOC  "key_in[60]" TODO_K60;
+IO_LOC  "key_in[61]" TODO_K61;
+IO_LOC  "key_in[62]" TODO_K62;
+IO_LOC  "key_in[63]" TODO_K63;
+IO_LOC  "key_in[64]" TODO_K64;
+IO_LOC  "key_in[65]" TODO_K65;
+IO_LOC  "key_in[66]" TODO_K66;
+IO_LOC  "key_in[67]" TODO_K67;
+IO_LOC  "key_in[68]" TODO_K68;
+IO_LOC  "key_in[69]" TODO_K69;
+IO_LOC  "key_in[70]" TODO_K70;
+IO_LOC  "key_in[71]" TODO_K71;
+IO_LOC  "key_in[72]" TODO_K72;
+IO_LOC  "key_in[73]" TODO_K73;
+IO_LOC  "key_in[74]" TODO_K74;
+IO_LOC  "key_in[75]" TODO_K75;
+IO_LOC  "key_in[76]" TODO_K76;
+IO_LOC  "key_in[77]" TODO_K77;
+IO_LOC  "key_in[78]" TODO_K78;
+IO_LOC  "key_in[79]" TODO_K79;
+IO_LOC  "key_in[80]" TODO_K80;
+IO_LOC  "key_in[81]" TODO_K81;
+IO_LOC  "key_in[82]" TODO_K82;
+IO_LOC  "key_in[83]" TODO_K83;
+IO_LOC  "key_in[84]" TODO_K84;
+IO_LOC  "key_in[85]" TODO_K85;
+IO_LOC  "key_in[86]" TODO_K86;
+
+IO_PORT "key_in[0]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[1]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[2]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[3]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[4]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[5]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[6]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[7]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[8]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[9]"  IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[10]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[11]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[12]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[13]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[14]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[15]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[16]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[17]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[18]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[19]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[20]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[21]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[22]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[23]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[24]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[25]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[26]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[27]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[28]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[29]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[30]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[31]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[32]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[33]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[34]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[35]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[36]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[37]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[38]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[39]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[40]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[41]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[42]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[43]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[44]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[45]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[46]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[47]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[48]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[49]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[50]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[51]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[52]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[53]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[54]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[55]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[56]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[57]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[58]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[59]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[60]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[61]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[62]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[63]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[64]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[65]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[66]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[67]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[68]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[69]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[70]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[71]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[72]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[73]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[74]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[75]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[76]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[77]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[78]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[79]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[80]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[81]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[82]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[83]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[84]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[85]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_PORT "key_in[86]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+//----------------------------- 指示灯（低有效）--------------------------
+IO_LOC  "led_caps"   TODO_L1;
+IO_LOC  "led_num"    TODO_L2;
+IO_LOC  "led_scroll" TODO_L3;
+IO_PORT "led_caps"   IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_num"    IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_scroll" IO_TYPE=LVCMOS33 DRIVE=8;
+
+//----------------------------- 调试 ------------------------------------
+IO_LOC  "dbg_configured" TODO_L4;
+IO_PORT "dbg_configured" IO_TYPE=LVCMOS33 DRIVE=8;
